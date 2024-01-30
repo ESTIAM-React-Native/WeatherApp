@@ -6,13 +6,15 @@ import Days from "./Days";
 function Information() {
   const apiKey = "1be727ee596eb0e6cdbea09cafc4c416";
 
-  const [cityName, setCityName] = useState(""); // État pour stocker le nom de la ville
+  const units = "metric";
+
+  const [cityName, setCityName] = useState("");
   const [weatherData, setWeatherData] = useState(null);
 
   const fetchWeatherData = async (cityName) => {
     try {
       const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}`
+        `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=${units}` // metric °C et Imperial °F
       );
 
       if (response.status === 200) {
@@ -51,7 +53,10 @@ function Information() {
           style={styles.textInput}
         />
         <Button title="Rechercher" onPress={handleSearch} />
-        <Image source={require("../assets/rechercher.png")} style={{width: 40, height: 40}}></Image>
+        <Image
+          source={require("../assets/rechercher.png")}
+          style={{ width: 40, height: 40 }}
+        ></Image>
       </View>
 
       {weatherData ? (
@@ -64,8 +69,11 @@ function Information() {
       ) : (
         <Text>Aucune donnée météorologique disponible.</Text>
       )}
-      <Image source={require("../assets/logoMeteo/pluie.gif")} style={{width: 100, height: 100}}></Image>
-      <Days cityName={cityName}/>
+      <Image
+        source={require("../assets/logoMeteo/pluie.gif")}
+        style={{ width: 100, height: 100 }}
+      ></Image>
+      <Days cityName={cityName} />
     </View>
   );
 }

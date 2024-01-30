@@ -10,7 +10,7 @@ function Days({ cityName }) {
   const fetchForecastData = async () => {
     try {
       const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}`
+        `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}&units=metric`
       );
 
       if (response.status === 200) {
