@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
 import axios from "axios";
+import Days from "./Days";
 
 function Information() {
-  const [weatherData, setWeatherData] = useState(null);
-
   const apiKey = "1be727ee596eb0e6cdbea09cafc4c416";
+
+  const [cityName, setCityName] = useState(""); // État pour stocker le nom de la ville
+  const [weatherData, setWeatherData] = useState(null);
 
   const fetchWeatherData = async (cityName) => {
     try {
@@ -14,9 +16,8 @@ function Information() {
       );
 
       if (response.status === 200) {
-        // Les données météorologiques sont dans response.data
         const weatherData = response.data;
-        return weatherData;
+        setWeatherData(weatherData);
       } else {
         throw new Error("Échec de la requête vers l'API OpenWeatherMap");
       }
@@ -25,29 +26,67 @@ function Information() {
         "Erreur lors de la récupération des données météorologiques :",
         error
       );
-      throw error;
+      setWeatherData(null);
+    }
+  };
+
+  const handleSearch = () => {
+    if (cityName.trim() !== "") {
+      fetchWeatherData(cityName);
     }
   };
 
   useEffect(() => {
-    fetchWeatherData("Paris").then((data) => {
-      setWeatherData(data);
-    });
+    // Charger les données initiales pour une ville par défaut au chargement de l'application
+    fetchWeatherData("Paris");
   }, []);
 
   return (
-    <View>
-      <Text>Ville</Text>
-      <Text>Temperature</Text>
-      <Text>Humidité</Text>
-      <Text>Image temperature</Text>
+    <View style={styles.container}>
+      <View style={styles.inputContainer}>
+        <TextInput
+          placeholder="Nom de la ville"
+          value={cityName}
+          onChangeText={(text) => setCityName(text)}
+          style={styles.textInput}
+        />
+        <Button title="Rechercher" onPress={handleSearch} />
+        <Image source={require("../assets/rechercher.png")} style={{width: 40, height: 40}}></Image>
+      </View>
+
       {weatherData ? (
-        <Text>Température : {weatherData.main.temp}°F</Text>
+        <View>
+          <Text>Ville : {weatherData.name}</Text>
+          <Text>Température actuelle : {weatherData.main.temp} °C</Text>
+          <Text>Humidité actuelle : {weatherData.main.humidity} %</Text>
+          <Text>Description : {weatherData.weather[0].description}</Text>
+        </View>
       ) : (
-        <Text>Chargement en cours...</Text>
+        <Text>Aucune donnée météorologique disponible.</Text>
       )}
+      <Image source={require("../assets/logoMeteo/pluie.gif")} style={{width: 100, height: 100}}></Image>
+      <Days cityName={cityName}/>
     </View>
   );
 }
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: 0,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  textInput: {
+    flex: 1,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 8,
+  },
+});
 
 export default Information;

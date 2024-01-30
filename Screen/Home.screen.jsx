@@ -1,15 +1,15 @@
 import React from "react";
-import Days from "../Components/Days";
+// import Days from "../Components/Days";
 import Information from "../Components/Information";
 import { View } from "react-native";
-import OptionBar from "../Components/OptionBar";
+// import OptionBar from "../Components/OptionBar";
 
 function HomeScreen() {
   return (
     <View>
-      <OptionBar />
+      {/* <OptionBar /> */}
       <Information />
-      <Days />
+      {/* <Days /> */}
     </View>
   );
 }
