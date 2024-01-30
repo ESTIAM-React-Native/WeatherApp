@@ -10,9 +10,9 @@ function Days() {
         <Text style={stylesheet.dateName}>Mercredi</Text>
       </View>
       <View style={stylesheet.dateContainer}>
-        <Text style={stylesheet.dateNumber}>01/01</Text>
-        <Text style={stylesheet.dateNumber}>02/01</Text>
-        <Text style={stylesheet.dateNumber}>03/01</Text>
+        <Text style={stylesheet.dateNumber}>13°</Text>
+        <Text style={stylesheet.dateNumber}>14°</Text>
+        <Text style={stylesheet.dateNumber}>15°</Text>
       </View>
     </View>
   );
