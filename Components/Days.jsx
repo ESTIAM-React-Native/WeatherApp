@@ -2,14 +2,15 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import axios from "axios";
 
-function Days({ cityName, units }) {
+function Days({ cityName }) {
   const apiKey = "1be727ee596eb0e6cdbea09cafc4c416";
+
   const [forecastData, setForecastData] = useState(null);
 
   const fetchForecastData = async () => {
     try {
       const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}&units=${units}`
+        `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}&units=metric`
       );
 
       if (response.status === 200) {
@@ -31,13 +32,12 @@ function Days({ cityName, units }) {
 
   useEffect(() => {
     fetchForecastData();
-  }, [cityName, units]);
+  }, [cityName]);
 
   const getDatesAndTemperatures = () => {
     if (forecastData) {
       const forecasts = forecastData.list;
       const datesAndTemperatures = [];
-
       const today = new Date();
       const tomorrow = new Date(today);
       tomorrow.setDate(today.getDate() + 1);
@@ -71,14 +71,12 @@ function Days({ cityName, units }) {
   const datesAndTemperatures = getDatesAndTemperatures();
 
   return (
-    <View style={styles.container}>
-      <Text>Météo des 3 prochains jours :</Text>
+    <View>
+      <Text style={styles.Trhee}>Météo des 3 prochains jours :</Text>
       {datesAndTemperatures.map((item, index) => (
-        <View key={index}>
-          <Text>Date : {item.date}</Text>
-          <Text>
-            Température : {item.temperature} {units === "metric" ? "°C" : "°F"}
-          </Text>
+        <View key={index} style={styles.horizontalContainer}>
+          <Text style={styles.dateText}>{item.date}</Text>
+          <Text style={styles.temperatureText}>Température : {item.temperature} °C</Text>
         </View>
       ))}
       {datesAndTemperatures.length === 0 && (
@@ -89,17 +87,32 @@ function Days({ cityName, units }) {
       )}
     </View>
   );
+  
 }
+
 const styles = StyleSheet.create({
-  rectangle: {
-    width: 229,
-    height: 123,
-    flexShrink: 0,
-    borderRadius: 5,
-    backgroundColor: "rgba(123, 122, 172, 0.6117647290229797)",
-    display: "flex",
-    flexDirection: "row",
+  horizontalContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    marginRight: 10,
+    marginLeft: 10,
+    marginTop:10,
   },
+  dateText: {
+    marginRight: 8,
+    color: "white"
+  },
+  temperatureText: {
+    marginLeft: 8,
+    color: "white"
+  },
+  Trhee:{
+    color: "white",
+    marginLeft: 8
+  }
 });
+
 
 export default Days;
