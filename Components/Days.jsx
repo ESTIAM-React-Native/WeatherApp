@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import axios from "axios";
 
-function Days({ cityName }) {
+function Days({ cityName, units }) {
   const apiKey = "1be727ee596eb0e6cdbea09cafc4c416";
 
   const [forecastData, setForecastData] = useState(null);
@@ -10,7 +10,7 @@ function Days({ cityName }) {
   const fetchForecastData = async () => {
     try {
       const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}&units=metric`
+        `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}&units=${units}`
       );
 
       if (response.status === 200) {
@@ -32,7 +32,7 @@ function Days({ cityName }) {
 
   useEffect(() => {
     fetchForecastData();
-  }, [cityName]);
+  }, [cityName, units]);
 
   const getDatesAndTemperatures = () => {
     if (forecastData) {
@@ -76,7 +76,9 @@ function Days({ cityName }) {
       {datesAndTemperatures.map((item, index) => (
         <View key={index} style={styles.horizontalContainer}>
           <Text style={styles.dateText}>{item.date}</Text>
-          <Text style={styles.temperatureText}>Température : {item.temperature} °C</Text>
+          <Text style={styles.temperatureText}>
+            Température : {item.temperature} {units === "metric" ? "°C" : "°F"}
+          </Text>
         </View>
       ))}
       {datesAndTemperatures.length === 0 && (
@@ -87,32 +89,30 @@ function Days({ cityName }) {
       )}
     </View>
   );
-  
 }
 
 const styles = StyleSheet.create({
   horizontalContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 8,
     marginRight: 10,
     marginLeft: 10,
-    marginTop:10,
+    marginTop: 10,
   },
   dateText: {
     marginRight: 8,
-    color: "white"
+    color: "white",
   },
   temperatureText: {
     marginLeft: 8,
-    color: "white"
-  },
-  Trhee:{
     color: "white",
-    marginLeft: 8
-  }
+  },
+  Trhee: {
+    color: "white",
+    marginLeft: 8,
+  },
 });
-
 
 export default Days;
