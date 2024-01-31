@@ -139,9 +139,7 @@ const styles = StyleSheet.create({
     flex: 1, // Le TextInput prend autant d'espace disponible que possible
     marginRight: 10,
   },
-  container_research_button: {
-    // Autres styles pour le conteneur du bouton
-  },
+
   textInput: {
     borderWidth: 1,
     borderColor: '#ccc',
