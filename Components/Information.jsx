@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
 import axios from "axios";
 import Days from "./Days";
+import * as Location from 'expo-location';
 
 function Information() {
   const apiKey = "1be727ee596eb0e6cdbea09cafc4c416";
@@ -10,40 +11,47 @@ function Information() {
   const [cityName, setCityName] = useState("");
   const [weatherData, setWeatherData] = useState(null);
 
-  const fetchWeatherData = async (cityName) => {
+  const fetchWeatherData = async (lat, lon) => {
     try {
-      const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=${units}`
-      );
+      const url = lat && lon
+        ? `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${units}`
+        : `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=${units}`;
+
+      const response = await axios.get(url);
 
       if (response.status === 200) {
-        const weatherData = response.data;
-        setWeatherData(weatherData);
+        setWeatherData(response.data);
       } else {
         throw new Error("Échec de la requête vers l'API OpenWeatherMap");
       }
     } catch (error) {
-      console.error(
-        "Erreur lors de la récupération des données météorologiques :",
-        error
-      );
+      console.error("Erreur lors de la récupération des données météorologiques :", error);
       setWeatherData(null);
     }
   };
 
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.error('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      fetchWeatherData(location.coords.latitude, location.coords.longitude);
+    })();
+  }, [units]);
+
   const handleSearch = () => {
     if (cityName.trim() !== "") {
-      fetchWeatherData(cityName);
+      fetchWeatherData(null, null);
     }
   };
 
   const toggleUnits = () => {
     setUnits((prevUnits) => (prevUnits === "metric" ? "imperial" : "metric"));
   };
-
-  useEffect(() => {
-    fetchWeatherData("Paris");
-  }, [units]);
 
   const getWeatherImage = (description) => {
     switch (description) {
@@ -79,10 +87,6 @@ function Information() {
           style={styles.textInput}
         />
         <Button title="Rechercher" onPress={handleSearch} />
-        {/* <Image
-          source={require("../assets/rechercher.png")}
-          style={{ width: 40, height: 40 }}
-        /> */}
       </View>
 
       {weatherData ? (
