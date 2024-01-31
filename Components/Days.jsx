@@ -2,15 +2,14 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import axios from "axios";
 
-function Days({ cityName }) {
+function Days({ cityName, units }) {
   const apiKey = "1be727ee596eb0e6cdbea09cafc4c416";
-
   const [forecastData, setForecastData] = useState(null);
 
   const fetchForecastData = async () => {
     try {
       const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}&units=metric`
+        `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}&units=${units}`
       );
 
       if (response.status === 200) {
@@ -31,16 +30,14 @@ function Days({ cityName }) {
   };
 
   useEffect(() => {
-    // Charger les prévisions météorologiques pour demain au chargement de l'application
     fetchForecastData();
-  }, [cityName]);
+  }, [cityName, units]);
 
   const getDatesAndTemperatures = () => {
     if (forecastData) {
       const forecasts = forecastData.list;
       const datesAndTemperatures = [];
 
-      // Filtrer les prévisions pour les 3 prochains jours
       const today = new Date();
       const tomorrow = new Date(today);
       tomorrow.setDate(today.getDate() + 1);
@@ -50,7 +47,6 @@ function Days({ cityName }) {
         const forecast = forecasts[i];
         const forecastDate = new Date(forecast.dt * 1000);
 
-        // Vérifiez si la date de prévision correspond au jour suivant
         if (forecastDate.getDate() === tomorrow.getDate()) {
           datesAndTemperatures.push({
             date: forecastDate.toLocaleDateString(),
@@ -60,7 +56,6 @@ function Days({ cityName }) {
           tomorrow.setDate(tomorrow.getDate() + 1);
           dayCounter++;
 
-          // Arrêtez la boucle après avoir obtenu les prévisions pour les 3 prochains jours
           if (dayCounter === 3) {
             break;
           }
@@ -81,7 +76,9 @@ function Days({ cityName }) {
       {datesAndTemperatures.map((item, index) => (
         <View key={index}>
           <Text>Date : {item.date}</Text>
-          <Text>Température : {item.temperature} °C</Text>
+          <Text>
+            Température : {item.temperature} {units === "metric" ? "°C" : "°F"}
+          </Text>
         </View>
       ))}
       {datesAndTemperatures.length === 0 && (
@@ -93,7 +90,6 @@ function Days({ cityName }) {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   rectangle: {
     width: 229,
