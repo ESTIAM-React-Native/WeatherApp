@@ -4,6 +4,7 @@ import axios from "axios";
 
 function Days({ cityName, units }) {
   const apiKey = "1be727ee596eb0e6cdbea09cafc4c416";
+
   const [forecastData, setForecastData] = useState(null);
 
   const fetchForecastData = async () => {
@@ -37,7 +38,6 @@ function Days({ cityName, units }) {
     if (forecastData) {
       const forecasts = forecastData.list;
       const datesAndTemperatures = [];
-
       const today = new Date();
       const tomorrow = new Date(today);
       tomorrow.setDate(today.getDate() + 1);
@@ -71,12 +71,12 @@ function Days({ cityName, units }) {
   const datesAndTemperatures = getDatesAndTemperatures();
 
   return (
-    <View style={styles.container}>
-      <Text>Météo des 3 prochains jours :</Text>
+    <View>
+      <Text style={styles.Trhee}>Météo des 3 prochains jours :</Text>
       {datesAndTemperatures.map((item, index) => (
-        <View key={index}>
-          <Text>Date : {item.date}</Text>
-          <Text>
+        <View key={index} style={styles.horizontalContainer}>
+          <Text style={styles.dateText}>{item.date}</Text>
+          <Text style={styles.temperatureText}>
             Température : {item.temperature} {units === "metric" ? "°C" : "°F"}
           </Text>
         </View>
@@ -90,15 +90,28 @@ function Days({ cityName, units }) {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
-  rectangle: {
-    width: 229,
-    height: 123,
-    flexShrink: 0,
-    borderRadius: 5,
-    backgroundColor: "rgba(123, 122, 172, 0.6117647290229797)",
-    display: "flex",
+  horizontalContainer: {
     flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+    marginRight: 10,
+    marginLeft: 10,
+    marginTop: 10,
+  },
+  dateText: {
+    marginRight: 8,
+    color: "white",
+  },
+  temperatureText: {
+    marginLeft: 8,
+    color: "white",
+  },
+  Trhee: {
+    color: "white",
+    marginLeft: 8,
   },
 });
 

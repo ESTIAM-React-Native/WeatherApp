@@ -1,17 +1,20 @@
 import React from "react";
-// import Days from "../Components/Days";
 import Information from "../Components/Information";
-import { View } from "react-native";
-// import OptionBar from "../Components/OptionBar";
+import { View, StyleSheet, Styles } from "react-native";
 
 function HomeScreen() {
   return (
-    <View>
-      {/* <OptionBar /> */}
+    <View style={styles.container}>
       <Information />
-      {/* <Days /> */}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'lightblue',
+  },
+});
 
 export default HomeScreen;

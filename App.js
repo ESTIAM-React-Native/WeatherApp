@@ -2,11 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import HomeScreen from "./Screen/Home.screen";
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <HomeScreen></HomeScreen>
-    </View>
-  );
+  return <HomeScreen></HomeScreen>;
 }
 
 const styles = StyleSheet.create({

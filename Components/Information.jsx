@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Button,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import axios from "axios";
 import Days from "./Days";
+import * as Location from "expo-location";
 
 function Information() {
   const apiKey = "1be727ee596eb0e6cdbea09cafc4c416";
@@ -10,15 +19,17 @@ function Information() {
   const [cityName, setCityName] = useState("");
   const [weatherData, setWeatherData] = useState(null);
 
-  const fetchWeatherData = async (cityName) => {
+  const fetchWeatherData = async (lat, lon) => {
     try {
-      const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=${units}`
-      );
+      const url =
+        lat && lon
+          ? `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${units}`
+          : `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=${units}`;
+
+      const response = await axios.get(url);
 
       if (response.status === 200) {
-        const weatherData = response.data;
-        setWeatherData(weatherData);
+        setWeatherData(response.data);
       } else {
         throw new Error("Échec de la requête vers l'API OpenWeatherMap");
       }
@@ -31,19 +42,28 @@ function Information() {
     }
   };
 
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.error("Permission to access location was denied");
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      fetchWeatherData(location.coords.latitude, location.coords.longitude);
+    })();
+  }, [units]);
+
   const handleSearch = () => {
     if (cityName.trim() !== "") {
-      fetchWeatherData(cityName);
+      fetchWeatherData(null, null);
     }
   };
 
   const toggleUnits = () => {
     setUnits((prevUnits) => (prevUnits === "metric" ? "imperial" : "metric"));
   };
-
-  useEffect(() => {
-    fetchWeatherData("Paris");
-  }, [units]);
 
   const getWeatherImage = (description) => {
     switch (description) {
@@ -69,61 +89,127 @@ function Information() {
   };
 
   return (
-    <View style={styles.container}>
-      <Button title="Changer d'unités" onPress={toggleUnits} />
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Nom de la ville"
-          value={cityName}
-          onChangeText={(text) => setCityName(text)}
-          style={styles.textInput}
-        />
-        <Button title="Rechercher" onPress={handleSearch} />
-        {/* <Image
-          source={require("../assets/rechercher.png")}
-          style={{ width: 40, height: 40 }}
-        /> */}
+    <View>
+      <View style={styles.container_research}>
+        <View style={styles.container_research_input}>
+          <TextInput
+            placeholder="Nom de la ville"
+            value={cityName}
+            onChangeText={(text) => setCityName(text)}
+            style={styles.textInput}
+          />
+        </View>
+        <View style={styles.container_research_button}>
+          <TouchableOpacity onPress={handleSearch}>
+            <Image
+              source={require("../assets/rechercher.png")}
+              style={{ width: 35, height: 35, marginRight: 10, marginLeft: -5 }}
+            />
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity onPress={toggleUnits}>
+          <Image
+            source={require("../assets/celsius.png")}
+            style={{ width: 35, height: 35, marginRight: 10, marginLeft: -5 }}
+          />
+        </TouchableOpacity>
       </View>
 
       {weatherData ? (
-        <View>
-          <Text>Ville : {weatherData.name}</Text>
-          <Text>
-            Température actuelle : {weatherData.main.temp}{" "}
-            {units === "metric" ? "°C" : "°F"}
+        <View style={styles.weatherContainer}>
+          <Text style={styles.weather_name}>{weatherData.name}</Text>
+          <Text style={styles.metric}>
+            {weatherData.main.temp} {units === "metric" ? "°C" : "°F"}
           </Text>
-          <Text>Humidité actuelle : {weatherData.main.humidity} %</Text>
-          <Text>Description : {weatherData.weather[0].description}</Text>
-          <Image
-            source={getWeatherImage(weatherData.weather[0].description)}
-            style={{ width: 100, height: 100 }}
-          />
+          <View style={styles.contain_humidity}>
+            <View style={styles.humidity_image}>
+              <Image
+                source={require("../assets/eau.png")}
+                style={{ width: 20, height: 20, marginRight: 5, marginLeft: 7 }}
+              />
+            </View>
+            <View style={styles.humidity_pourcentage}>
+              <Text style={styles.pourcentage}>
+                {weatherData.main.humidity} %
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.img_weather}>
+            <Image
+              source={getWeatherImage(weatherData.weather[0].description)}
+              style={{ width: 200, height: 200, marginTop: 20 }}
+            />
+          </View>
         </View>
       ) : (
         <Text>Aucune donnée météorologique disponible.</Text>
       )}
-      <Days cityName={weatherData ? weatherData.name : ""} units={units} />
+
+      <View style={styles.container_days}>
+        <Days cityName={weatherData ? weatherData.name : ""} units={units} />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 0,
-  },
-  inputContainer: {
+  container_research: {
     flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 16,
+    marginTop: 100,
+  },
+  container_research_input: {
+    flex: 1,
+    marginRight: 10,
   },
   textInput: {
-    flex: 1,
-    marginRight: 8,
     borderWidth: 1,
     borderColor: "#ccc",
+    borderRadius: 4,
     padding: 8,
+    flex: 1,
+    marginLeft: 5,
+    backgroundColor: "white",
+  },
+  button_research: {
+    backgroundColor: "blue",
+    padding: 10,
+    borderRadius: 5,
+    marginRight: 4,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+  },
+  weather_name: {
+    fontSize: 30,
+    color: "white",
+    marginLeft: 7,
+    marginTop: 15,
+  },
+  metric: {
+    fontSize: 50,
+    color: "white",
+    marginLeft: 6,
+  },
+  contain_humidity: {
+    flexDirection: "row",
+  },
+  pourcentage: {
+    color: "white",
+  },
+  img_weather: {
+    alignItems: "center",
+  },
+  container_days: {
+    backgroundColor: "#798FDD",
+    marginRight: 10,
+    marginLeft: 10,
+    borderRadius: 5,
+    marginTop: 60,
+    padding: 10,
   },
 });
 
